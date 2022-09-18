@@ -38,6 +38,71 @@ class Boid
      if (target != null)
      {  
         // TODO: Implement seek here
+        //seek implementation
+       
+      //Calculates distance from Boid to target 
+      float distance = get_distance(billy.kinematic.position.x, billy.kinematic.position.y, target.x, target.y);
+      
+      
+      float angletotarget = normalize_angle_left_right(atan2(target.y - billy.kinematic.position.y, target.x - billy.kinematic.position.x));
+      float angleofchange = angletotarget - normalize_angle_left_right(billy.kinematic.getHeading());
+      
+     
+      
+     // works to slow down when arriving
+     float IdealSpeed = distance;
+     
+     float VelocityChange = 0;
+     
+     if (billy.kinematic.getSpeed() > IdealSpeed){
+      VelocityChange = -1; 
+     } else {
+       VelocityChange = 1;
+     }
+     
+     float IdealRotationSpeed = angleofchange;
+     
+     float RotationChange = angleofchange;
+      
+     kinematic.increaseSpeed(VelocityChange, RotationChange);
+     print("\n", (angleofchange));
+     
+      //kinematic.increaseSpeed(distance, angleofchange/TAU);
+      /*
+      float VelocityChange = 0;
+      if (distance > 200){
+        VelocityChange = 1;
+      } else if (distance > 100){
+        VelocityChange = .1;
+      } else{
+        VelocityChange = -1;
+      }   
+      
+      float RotationChange = 0;
+      if (angleofchange > .2){
+        RotationChange = .01;
+      } else if (angleofchange < -.2){
+        RotationChange = -.01;
+      } else{
+        RotationChange = 0;
+      }
+      
+        if (distance < 200){
+       if (billy.kinematic.getSpeed() < 1){
+           //VelocityChange = 1;
+       } else {
+           VelocityChange = -BILLY_MAX_ACCELERATION * distance/width/10;
+       }
+     } else {
+       VelocityChange = BILLY_MAX_ACCELERATION * distance/width;
+     }
+     
+     if (billy.kinematic.getRotationalVelocity() > IdealRotationSpeed){
+      RotationChange = -1; 
+     } else {
+       RotationChange = 1;
+     }
+      */
      }
      
      // place crumbs, do not change     
