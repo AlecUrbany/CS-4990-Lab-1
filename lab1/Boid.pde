@@ -74,12 +74,18 @@ class Boid
            VelocityChange = -1;
        }
      }
+     
+     if(distance < 1)
+     {
+       VelocityChange = -billy.kinematic.getSpeed();
+       RotationChange = -billy.kinematic.getRotationalVelocity();
+     }
      //float RotationChange = angleofchange;
      
      
       
      kinematic.increaseSpeed(VelocityChange, RotationChange);
-     print("\n", (angleofchange));
+     //print("\n", (angleofchange));
      }
      
      // place crumbs, do not change     
@@ -124,16 +130,126 @@ class Boid
      triangle(xp, yp, x1p, y1p, x2p, y2p);
    } 
    
+   void seekFast(PVector target)
+   {
+     this.target = target;
+      if (target != null)
+     {  
+        // TODO: Implement seek here
+        //seek implementation
+       
+      //Calculates distance from Boid to target 
+      float distance = get_distance(billy.kinematic.position.x, billy.kinematic.position.y, target.x, target.y);
+      
+      
+      float angletotarget = normalize_angle_left_right(atan2(target.y - billy.kinematic.position.y, target.x - billy.kinematic.position.x));
+      float angleofchange = angletotarget - normalize_angle_left_right(billy.kinematic.getHeading());
+                                                      
+      
+     // works to slow down when arriving
+     float IdealSpeed = distance;                                                      
+     
+     float VelocityChange = 1;
+     
+     float IdealRotationSpeed = angleofchange;
+     float RotationChange = 0;
+     
+     if(IdealRotationSpeed > billy.kinematic.getRotationalVelocity()){
+         RotationChange = 1;
+     }  else{
+         RotationChange = -1;
+     }
+     
+     if(abs(angleofchange) > TAU/8)
+     {
+       RotationChange = 1;
+       if (billy.kinematic.getSpeed() > BILLY_MAX_SPEED/4)
+       {
+           VelocityChange = -1;
+       }
+     }
+     }
+   }  
+   
    void seek(PVector target)
    {
       this.target = target;
+      if (target != null)
+     {  
+        // TODO: Implement seek here
+        //seek implementation
+       
+      //Calculates distance from Boid to target 
+      float distance = get_distance(billy.kinematic.position.x, billy.kinematic.position.y, target.x, target.y);
       
+      
+      float angletotarget = normalize_angle_left_right(atan2(target.y - billy.kinematic.position.y, target.x - billy.kinematic.position.x));
+      float angleofchange = angletotarget - normalize_angle_left_right(billy.kinematic.getHeading());
+                                                      
+      
+     // works to slow down when arriving
+     float IdealSpeed = distance;                                                      
+     
+     float VelocityChange = 0;
+     
+     if (billy.kinematic.getSpeed() > IdealSpeed){                
+      VelocityChange = -1; 
+     } else {
+       VelocityChange = 1;
+     }
+     
+     float IdealRotationSpeed = angleofchange;
+     float RotationChange = 0;
+     
+     if(IdealRotationSpeed > billy.kinematic.getRotationalVelocity()){
+         RotationChange = 1;
+     }  else{
+         RotationChange = -1;
+     }
+     
+     if(abs(angleofchange) > TAU/8){
+       RotationChange = 1;
+       if (billy.kinematic.getSpeed() > BILLY_MAX_SPEED/4){
+           VelocityChange = -1;
+       }
+     }
+     
+     if(distance < 1)
+     {
+       VelocityChange = -billy.kinematic.getSpeed();
+       RotationChange = -billy.kinematic.getRotationalVelocity();
+     }
+     //float RotationChange = angleofchange;
+     
+     
+      
+     kinematic.increaseSpeed(VelocityChange, RotationChange);
+     //print("\n", (angleofchange));
+     }
    }
    
    void follow(ArrayList<PVector> waypoints)
    {
       // TODO: change to follow *all* waypoints
-      this.target = waypoints.get(0);
-      
+       int howMany = waypoints.size();
+       print("\nThere are this many waypoints:", howMany);
+       int n = 0;
+       
+      if (n == howMany)
+      {
+       this.target = waypoints.get(n);
+       print("\nThe last target is:", target, "at waypoint number:", howMany);
+       billy.seek(target);
+      }
+      else
+      {
+       this.target = waypoints.get(n);
+       print("\nThe current target is:", target, "at waypoint number:", n);
+       billy.seekFast(target);
+       print("\n", waypoints.get(0));
+       waypoints.remove(0);
+       print("\n", waypoints.get(0));
+      }
+         
    }
 }
