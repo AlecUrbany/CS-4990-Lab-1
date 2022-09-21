@@ -41,54 +41,51 @@ class Boid
        
       //Calculates distance from Boid to target 
       float distance = get_distance(billy.kinematic.position.x, billy.kinematic.position.y, target.x, target.y);
-      //Calculates angle to target from boid
+      
+      
       float angletotarget = normalize_angle_left_right(atan2(target.y - billy.kinematic.position.y, target.x - billy.kinematic.position.x));
-      float angleofchange = angletotarget - normalize_angle_left_right(billy.kinematic.getHeading());
-                                                      
+      float angleofchange = normalize_angle_left_right(angletotarget - billy.kinematic.getHeading());
+                                                   
+      
      // works to slow down when arriving
      float IdealSpeed = distance;                                                      
+     
      float VelocityChange = 0;
      
-     //Slows the Billy down if it's too fast, else it's speeding up
-     if (billy.kinematic.getSpeed() > IdealSpeed && waypoints.size() <=1)
-     {                
-       VelocityChange = -1; 
-     } 
-     else 
-     {
+     if (billy.kinematic.getSpeed() > IdealSpeed && waypoints.size() <=1){                
+      VelocityChange = -1; 
+     } else {
        VelocityChange = 1;
      }
      
-     float IdealRotationSpeed = angleofchange;
+     
      float RotationChange = 0;
      
-     if(IdealRotationSpeed > billy.kinematic.getRotationalVelocity())
-     {
+       
+     
+     if(angleofchange > billy.kinematic.getRotationalVelocity()){
          RotationChange = 1;
-     }  
-     else
-     {
+     }  else{
          RotationChange = -1;
      }
      
-     //Allows the billy to turn without missing the target.
-     if(abs(angleofchange) > TAU/16)
-     {
-       RotationChange = 1;
-       if (billy.kinematic.getSpeed() > BILLY_MAX_SPEED/4)
+     if(abs(angleofchange) > TAU/8){
+       RotationChange = angleofchange;
+       print("\n hi");
+       if (billy.kinematic.getSpeed() > 0)
        {
            VelocityChange = -1;
        }
      }
      
-     //This allows the Billy to follow multiple waypoints
      if(distance <1)
      {
-       if (waypoints.size() == 1)
+       print("\n");
+       if (waypoints.size() <= 1)
        {
          VelocityChange = -billy.kinematic.getSpeed();
          RotationChange = -billy.kinematic.getRotationalVelocity();
-         billy.follow(waypoints);
+         //billy.follow(waypoints);
        }
        else if (waypoints.size() > 1)
        {
@@ -96,9 +93,13 @@ class Boid
          billy.follow(waypoints);
        }
      }
-     
-     //float RotationChange = angleofchange;
+      
      kinematic.increaseSpeed(VelocityChange, RotationChange);
+     //kinematic.increaseSpeed(0, 0);
+     //print("\n", (angleofchange));
+     
+      
+     
      }
      
      // place crumbs, do not change     
