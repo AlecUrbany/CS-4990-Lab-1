@@ -42,67 +42,79 @@ class Boid
       //Calculates distance from Boid to target 
       float distance = get_distance(billy.kinematic.position.x, billy.kinematic.position.y, target.x, target.y);
       
-      
       float angletotarget = normalize_angle_left_right(atan2(target.y - billy.kinematic.position.y, target.x - billy.kinematic.position.x));
       float angleofchange = normalize_angle_left_right(angletotarget - billy.kinematic.getHeading());
                                                    
-      
-     // works to slow down when arriving
-     float IdealSpeed = distance;                                                      
-     
+     //Sets the speed relative to the immediate point
      float VelocityChange = 0;
-     
-     if (billy.kinematic.getSpeed() > IdealSpeed && waypoints.size() <=1)
-     {  
-       print("\n", distance);
-       VelocityChange = -1; 
-     } 
-     else if (billy.kinematic.getSpeed() > IdealSpeed && waypoints.size() > 1 && distance <= 50)
-     {
-       VelocityChange = -.5;
-     }
-     else 
-     {
+     if (billy.kinematic.getSpeed() > distance){                
+      VelocityChange = -1; 
+     } else {
        VelocityChange = 1;
      }
      
-     
+     //Turns to face the immediate point
      float RotationChange = 0;
-     
-       
-     
-     if(angleofchange > billy.kinematic.getRotationalVelocity())
-     {
-         RotationChange = 1;
-     }  
-     else
-     {
-         RotationChange = -1;
+     if(angleofchange > billy.kinematic.getRotationalVelocity()){
+         RotationChange = 1 * abs(angleofchange);
+     }  else{
+         RotationChange = -1 * abs(angleofchange);
      }
      
-     if(abs(angleofchange) > TAU/8)
-     {
-       RotationChange = angleofchange;
-       print("\n hi");
-       if (billy.kinematic.getSpeed() > 0)
+     //Slows down when not pointing at the proper direction
+     if(abs(angleofchange) > TAU/16){
+       //RotationChange = angleofchange;
+       //print("\n hi");
+       if (billy.kinematic.getSpeed() > 10)
        {
            VelocityChange = -1;
        }
      }
      
-     if(distance <1)
+     //Previous lines make going one point to another quick but dont take into account the angle between 2 waypoints
+     float nextHeading = 0;
+     float nextDistance = 0;
+     
+     if (waypoints.size() > 1)
+       {
+         PVector currentPoint = waypoints.get(0);
+         PVector nextPoint = waypoints.get(1);
+         
+         //Currently redundant, could add a check later
+         nextDistance = get_distance(currentPoint.x, currentPoint.y, nextPoint.x, nextPoint.y);
+         //calculates how much needs to change for following point
+         nextHeading = atan2(nextPoint.y - currentPoint.y, nextPoint.x - currentPoint.y) + angleofchange;
+         //print("\n" + nextHeading);
+         
+         //creates a turning speed relative to how much the point needs to turn
+         float turningSpeed = BILLY_MAX_SPEED  * (1 - abs(nextHeading/(TAU/2)));    //turns it into a ratio of speed from 0 to 100 percent of max speed
+         //float turningSpeed = BILLY_MAX_SPEED  * (1 - abs(nextHeading/(25))); //Experimenting with how much it slows down as it currently slows too much on low angles
+         
+         
+         
+         //if its too fast it will slow down, and it also needs to be within the max speed range, which is currently 80
+         if(billy.kinematic.getSpeed() > turningSpeed && distance < BILLY_MAX_SPEED){
+            VelocityChange = -1;
+            
+         }
+         
+       }
+     
+     
+     //Increased from 1 for higher tolerance and faster teting
+     if(distance <5)
      {
-       if (waypoints.size() <= 1)
+       print("\n Arrived at a point");
+       if (waypoints.size() == 1)
        {
          VelocityChange = -billy.kinematic.getSpeed();
          RotationChange = -billy.kinematic.getRotationalVelocity();
-         //billy.follow(waypoints);
        }
-
        else if (waypoints.size() > 1)
        {
          waypoints.remove(0);
          billy.follow(waypoints);
+         print("\n", (distance));
        }
      }
       
