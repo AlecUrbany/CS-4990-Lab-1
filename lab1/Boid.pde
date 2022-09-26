@@ -52,9 +52,17 @@ class Boid
      
      float VelocityChange = 0;
      
-     if (billy.kinematic.getSpeed() > IdealSpeed && waypoints.size() <=1){                
-      VelocityChange = -1; 
-     } else {
+     if (billy.kinematic.getSpeed() > IdealSpeed && waypoints.size() <=1)
+     {  
+       print("\n", distance);
+       VelocityChange = -1; 
+     } 
+     else if (billy.kinematic.getSpeed() > IdealSpeed && waypoints.size() > 1 && distance <= 50)
+     {
+       VelocityChange = -.5;
+     }
+     else 
+     {
        VelocityChange = 1;
      }
      
@@ -63,13 +71,17 @@ class Boid
      
        
      
-     if(angleofchange > billy.kinematic.getRotationalVelocity()){
+     if(angleofchange > billy.kinematic.getRotationalVelocity())
+     {
          RotationChange = 1;
-     }  else{
+     }  
+     else
+     {
          RotationChange = -1;
      }
      
-     if(abs(angleofchange) > TAU/8){
+     if(abs(angleofchange) > TAU/8)
+     {
        RotationChange = angleofchange;
        print("\n hi");
        if (billy.kinematic.getSpeed() > 0)
@@ -80,13 +92,13 @@ class Boid
      
      if(distance <1)
      {
-       print("\n");
        if (waypoints.size() <= 1)
        {
          VelocityChange = -billy.kinematic.getSpeed();
          RotationChange = -billy.kinematic.getRotationalVelocity();
          //billy.follow(waypoints);
        }
+
        else if (waypoints.size() > 1)
        {
          waypoints.remove(0);
