@@ -87,8 +87,8 @@ class Boid
          //print("\n" + nextHeading);
          
          //creates a turning speed relative to how much the point needs to turn
-         float turningSpeed = BILLY_MAX_SPEED  * (1 - abs(nextHeading/(TAU/2)));    //turns it into a ratio of speed from 0 to 100 percent of max speed
-         //float turningSpeed = BILLY_MAX_SPEED  * (1 - abs(nextHeading/(25))); //Experimenting with how much it slows down as it currently slows too much on low angles
+         float turningSpeed = BILLY_MAX_SPEED  * (1 * abs(nextHeading/(TAU/2)));    //turns it into a ratio of speed from 0 to 100 percent of max speed
+         //float turningSpeed = BILLY_MAX_SPEED  * (1 * abs(nextHeading/(25))); //Experimenting with how much it slows down as it currently slows too much on low angles
          
          
          
