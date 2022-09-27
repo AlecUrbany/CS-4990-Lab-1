@@ -87,15 +87,16 @@ class Boid
          //print("\n" + nextHeading);
          
          //creates a turning speed relative to how much the point needs to turn
-         float turningSpeed = BILLY_MAX_SPEED  * (1 * abs(nextHeading/(TAU/2)));    //turns it into a ratio of speed from 0 to 100 percent of max speed
+         float turningSpeed = (BILLY_MAX_SPEED  - BILLY_MAX_SPEED * (1 * abs(nextHeading/(TAU))));    //turns it into a ratio of speed from 0 to 100 percent of max speed
          //float turningSpeed = BILLY_MAX_SPEED  * (1 * abs(nextHeading/(25))); //Experimenting with how much it slows down as it currently slows too much on low angles
-         
-         
+         print("\n" + nextHeading);
+         print("\n" + turningSpeed);
          
          //if its too fast it will slow down, and it also needs to be within the max speed range, which is currently 80
-         if(billy.kinematic.getSpeed() > turningSpeed && distance < BILLY_MAX_SPEED){
+         if((billy.kinematic.getSpeed() > turningSpeed) && (distance < BILLY_MAX_SPEED)){
             VelocityChange = -1;
-            
+         } else if(billy.kinematic.getSpeed() < turningSpeed){
+           VelocityChange = 1;
          }
          
        }
