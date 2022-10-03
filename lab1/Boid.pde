@@ -83,7 +83,7 @@ class Boid
          //Currently redundant, could add a check later
          nextDistance = get_distance(currentPoint.x, currentPoint.y, nextPoint.x, nextPoint.y);
          //calculates how much needs to change for following point
-         nextHeading = atan2(nextPoint.y - currentPoint.y, nextPoint.x - currentPoint.y) + angleofchange;
+         nextHeading = atan2(nextPoint.y - currentPoint.y, nextPoint.x - currentPoint.x) + angleofchange;
          //print("\n" + nextHeading);
          
          //creates a turning speed relative to how much the point needs to turn
