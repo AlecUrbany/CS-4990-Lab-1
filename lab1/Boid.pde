@@ -53,75 +53,79 @@ class Boid
        VelocityChange = 1;
      }
      
-     //Turns to face the immediate point
-     float RotationChange = 0;
-     if(angleofchange > billy.kinematic.getRotationalVelocity()){
-         RotationChange = 1 * abs(angleofchange);
-     }  else{
-         RotationChange = -1 * abs(angleofchange);
+     
+     //3 lines of code to rotate towards the point
+     float RotationChange = angleofchange;
+     if (abs(angleofchange) < .1){
+       RotationChange = angleofchange - billy.kinematic.getRotationalVelocity();
      }
      
+
+     //Previous lines make going one point to another quick but dont take into account the angle between 2 waypoints
+     float nextHeading;
+     float nextDistance;
+     
+     if (followpoints != null && followpoints.size() > 1 )
+       {
+         PVector currentPoint = followpoints.get(0);
+         PVector nextPoint = followpoints.get(1); 
+       
+         //Calculates how far for an additional check before slowing
+         nextDistance = get_distance(currentPoint.x, currentPoint.y, nextPoint.x, nextPoint.y);
+         
+         //calculates how much needs to change for following point
+         nextHeading = normalize_angle_left_right(atan2(nextPoint.y - currentPoint.y, nextPoint.x - currentPoint.x)-billy.kinematic.getHeading());
+         print("\n angle of change: " + angleofchange);  
+         print("\n next Heading: " + nextHeading);         
+         
+         //creates a turning speed relative to how much the point needs to turn 
+         float turningSpeed = BILLY_MAX_SPEED  - BILLY_MAX_SPEED * (1 * abs(nextHeading)/3.14); 
+         
+         //print("\n turning ration: " + abs(nextHeading)/3.14);
+         print("\n turning speed: " + turningSpeed);
+
+         //begins checking the corner speed when within the max speed range
+         if(distance < BILLY_MAX_SPEED){
+           
+           //Slows boid to calculated turning speed or if there are 2 points close together it slows to make sure theres no juking
+           if(((billy.kinematic.getSpeed() > turningSpeed) || (8 * nextDistance < turningSpeed)) && billy.kinematic.getSpeed() > 10){
+            VelocityChange = -1;
+            
+           //makes sure that the boid isn't slowing below 10, even for a 180 turn
+           } else {
+             VelocityChange = 1;
+           }
+         }
+         
+       }
+       
      //Slows down when not pointing at the proper direction
-     if(abs(angleofchange) > TAU/16){
-       //RotationChange = angleofchange;
-       //print("\n hi");
-       if (billy.kinematic.getSpeed() > 10)
+     if(abs(angleofchange) > TAU/32){
+       if (billy.kinematic.getSpeed() > 1)
        {
            VelocityChange = -1;
        }
      }
      
-     //Previous lines make going one point to another quick but dont take into account the angle between 2 waypoints
-     float nextHeading = 0;
-     float nextDistance = 0;
-     
-     if (waypoints.size() > 1)
-       {
-         PVector currentPoint = waypoints.get(0);
-         PVector nextPoint = waypoints.get(1);
-         
-         //Currently redundant, could add a check later
-         nextDistance = get_distance(currentPoint.x, currentPoint.y, nextPoint.x, nextPoint.y);
-         //calculates how much needs to change for following point
-         nextHeading = atan2(nextPoint.y - currentPoint.y, nextPoint.x - currentPoint.x) + angleofchange;
-         //print("\n" + nextHeading);
-         
-         //creates a turning speed relative to how much the point needs to turn
-         float turningSpeed = (BILLY_MAX_SPEED  - BILLY_MAX_SPEED * (1 * abs(nextHeading/(TAU))));    //turns it into a ratio of speed from 0 to 100 percent of max speed
-         //float turningSpeed = BILLY_MAX_SPEED  * (1 * abs(nextHeading/(25))); //Experimenting with how much it slows down as it currently slows too much on low angles
-         print("\n" + nextHeading);
-         print("\n" + turningSpeed);
-         
-         //if its too fast it will slow down, and it also needs to be within the max speed range, which is currently 80
-         if((billy.kinematic.getSpeed() > turningSpeed) && (distance < BILLY_MAX_SPEED)){
-            VelocityChange = -1;
-         } else if(billy.kinematic.getSpeed() < turningSpeed){
-           VelocityChange = 1;
-         }
-         
-       }
-     
-     
      //Increased from 1 for higher tolerance and faster teting
      if(distance <5)
      {
        print("\n Arrived at a point");
-       if (waypoints.size() == 1)
+       if ((followpoints == null || followpoints.size() == 1))
        {
          VelocityChange = -billy.kinematic.getSpeed();
          RotationChange = -billy.kinematic.getRotationalVelocity();
        }
-       else if (waypoints.size() > 1)
+       else if (followpoints.size() > 1)
        {
-         waypoints.remove(0);
-         billy.follow(waypoints);
-         print("\n", (distance));
+         followpoints.remove(0);
+         billy.follow(followpoints);
        }
      }
       
      kinematic.increaseSpeed(VelocityChange, RotationChange);
      //kinematic.increaseSpeed(0, 0);
-     //print("\n", (angleofchange));
+     print("\n speed", (billy.kinematic.getSpeed()));
      
       
      
