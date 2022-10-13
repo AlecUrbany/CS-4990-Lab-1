@@ -24,6 +24,7 @@ class Boid
    float rotational_acceleration;
    KinematicMovement kinematic;
    PVector target;
+   ArrayList<PVector> followpoints;
    
    Boid(PVector position, float heading, float max_speed, float max_rotational_speed, float acceleration, float rotational_acceleration)
    {
@@ -176,12 +177,14 @@ class Boid
    void seek(PVector target)
    {
       this.target = target;
-      
+      followpoints = null;
    }
    
    void follow(ArrayList<PVector> waypoints)
    {
       // TODO: change to follow *all* waypoints
       this.target = waypoints.get(0);
+      this.followpoints = waypoints;
+
    }
 }
