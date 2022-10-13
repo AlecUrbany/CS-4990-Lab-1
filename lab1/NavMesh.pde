@@ -4,6 +4,8 @@ import java.util.Comparator;
 
 /// In this file you will implement your navmesh and pathfinding. 
 
+
+
 /// This node representation is just a suggestion
 class Node
 {
@@ -18,12 +20,33 @@ class Node
 
 class NavMesh
 {   
+   public ArrayList<PVector> ReflexPoints;
+  
    void bake(Map map)
    {
 
        /// generate the graph you need for pathfinding
        ///Add an array list of pvectors to navmesh class, store which vertices are reflex (reflex is found hrough dot product)
-       //draw circles on the reflex vertices
+      
+       ArrayList<Wall> Walls = map.walls;
+       ReflexPoints = new ArrayList<PVector>();
+
+         //loop through and check if reflex
+           //if yes add
+       stroke(0,255,0);
+       if(Walls != null){
+         for(int i = 0; i<Walls.size(); ++i){
+           int next = (i+1)%Walls.size();
+           if(Walls.get(i).normal.dot(Walls.get(next).direction) >= 0)
+           {
+             ReflexPoints.add(Walls.get(i).end);
+             //circle (ReflexPoints.get(ReflexPoints.size()-1).x, ReflexPoints.get(ReflexPoints.size()-1).y, 20);
+           }
+         }
+       } 
+       stroke(255,0,0);
+       
+       
        //second step down here
        //Once you have all the reflex vertices, you have a polygon which is ordered.
        //Find a reflex vertex, we need to add an edge. Select another vertex to connect to - just pick one arbitrarily. Closest, furthest, doesnt matter.
@@ -50,11 +73,18 @@ class NavMesh
    void update(float dt)
    {
       draw();
+      
+       //print("\n List all points: " + AllPoints);
+       //print("\n List all reflex points: " + RPoints);
+      
    }
    
    void draw()
    {
       /// use this to draw the nav mesh graph
-
+      for(int i = 0; i < ReflexPoints.size(); i++){
+        stroke(0,255,0);
+        circle(ReflexPoints.get(i).x, ReflexPoints.get(i).y, 20);
+      }
    }
 }
