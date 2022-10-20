@@ -85,6 +85,25 @@ class NavMesh
  
    }
    
+   void Split(ArrayList<Wall> PolygonWalls)
+   {
+     //find reflexive point
+     //use alg to find a new point   I think we should just start with the following point beyond what makes it reflex 
+       //two checks:
+       //one is that it is reachable
+       //two is that the angle will not be reflexive anymore
+     //creates a wall and reverse wall with the same numbers but one is negative
+     //creates two new sets of walls
+       //finds by matching removing all the walls between the reflexive and fix point on the original wall, and adds the reverse wall to that list
+         //the non inverted wall is inserted to the position that the previous walls were just removed from
+       //calls split() on both polygons
+     //somehow add the connections, or save the splitting edge to a global list that they can be compared against later
+     
+     //if no reflexive points are found a convex polygon has been created
+       //create an ID and initialize the polygon as a node class
+     
+   }
+   
    ArrayList<PVector> findPath(PVector start, PVector destination)
    {
       /// implement A* to find a path
