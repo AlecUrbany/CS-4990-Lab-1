@@ -20,3 +20,9 @@ float get_distance(float current_x, float current_y, float target_x, float targe
  float total_distance = sqrt(sq(x_travel)  + sq(y_travel));
  return total_distance;
 }
+
+void PrintWallCoords(ArrayList<Wall> Walls){
+  for(int x = 0; x<Walls.size(); x++){
+    print("\n Wall " + x + "starts at point " + Walls.get(x).start + "and ends at point " + Walls.get(x).end );
+  }
+}
