@@ -10,6 +10,7 @@ import java.util.HashMap;
 /// This node representation is just a suggestion
 class Node
 {
+   //Pieces that make up the node, ID (for referencing) list of polygons, the center of the polygons, neighbors, and connections between polygons
    int id;
    ArrayList<Wall> polygon;
    PVector center;
@@ -18,12 +19,11 @@ class Node
 }
 
 
-
 class NavMesh
 {   
    public ArrayList<PVector> ReflexPoints;
-   
    public ArrayList<Wall> NewWalls;
+   public ArrayList<PVector> NewWallsMidPoint;
    HashMap<Integer, Wall> NewWallsMap = new HashMap<Integer, Wall>();
    //public ArrayList<PVector> OriginalPoints;
    
@@ -36,24 +36,28 @@ class NavMesh
        ArrayList<Wall> Walls = map.walls;
        NewWalls = new ArrayList<Wall>();
        ReflexPoints = new ArrayList<PVector>();
+       NewWallsMidPoint = new ArrayList<PVector>();
        
        stroke(0,255,0);
-       if(Walls != null){
-         for(int i = 0; i<Walls.size(); ++i){
+       if(Walls != null)
+       {
+         for(int i = 0; i<Walls.size(); ++i)
+         {
            int next = (i+1)%Walls.size();
            if(Walls.get(i).normal.dot(Walls.get(next).direction) >= 0)
            {
              ReflexPoints.add(Walls.get(i).end);
-             //circle (ReflexPoints.get(ReflexPoints.size()-1).x, ReflexPoints.get(ReflexPoints.size()-1).y, 20);
            }
          }
        } 
        stroke(255,0,0);     
-             //second step down here
-             //Once you have all the reflex vertices, you have a polygon which is ordered.
-             //Find a reflex vertex, we need to add an edge. Select another vertex to connect to - just pick one arbitrarily. Closest, furthest, doesnt matter.
+       //second step down here
+       //Once you have all the reflex vertices, you have a polygon which is ordered.
+       //Find a reflex vertex, we need to add an edge. Select another vertex to connect to - just pick one arbitrarily. Closest, furthest, doesnt matter.
        //might add and if reflexive != null
-       if (ReflexPoints.size() > 0){
+       //If there are reflexpoints, we split
+       if (ReflexPoints.size() > 0)
+       {
          Split(Walls);  
        }
              //When the vertex is chosen, add an edge to the another array list.
@@ -67,28 +71,20 @@ class NavMesh
              //Make sure the wall doesnt intersect with anything. If you find a reflex vertex, make sure the split doesnt cross outside the map. So we can check the intersect method to see if the new line would intersect outside the wall. If the wall goes outside the map. take the middle of the line(the mean) and ask the map if it's outside the map - reachable is the method)
    }
    
+   //Split command, takes in a wall list as an input. Will split the map into smaller polygons
    void Split(ArrayList<Wall> PolygonWalls)
    {
-     ///if(RecursionLimit == 0){
-       //print("\nRecursion Limit Reached");
-       //return;
-     //}
-     //print("Printing a wall list");
-     //PrintWallCoords(PolygonWalls);
-     
      //find reflexive point
      int ReflexPointNumber = -1;
      boolean Convex = true;
-     
-     //Wall FrontWall = PolygonWalls.get(0);
-     
+    
+     //For loop. Cycles through the polygon wall list. If there's a reflex point, it adds it to the list of reflex points
      for(int i = 0; i<PolygonWalls.size(); ++i){
            int next = (i+1)%PolygonWalls.size();
            if(PolygonWalls.get(i).normal.dot(PolygonWalls.get(next).direction) >= 0)
            {
              print("\nReflex found");
              ReflexPointNumber = next;
-             //FrontWall = PolygonWalls.get(i);
              Convex = false;
              break;
            }
@@ -96,10 +92,15 @@ class NavMesh
      
      print("\nReflex Point Number: " + ReflexPointNumber);    
      
-     if(Convex){
+     //Checks whether or not the newly constructed polygon is convex.
+     if(Convex)
+     {
        print("\nFound Convex Polygon");
        //Create new polygon, no reflex points found
-     }  else { //Going to need to split it again
+     }  
+     
+     else 
+     { //Going to need to split it again
        PVector ReflexPoint = PolygonWalls.get(ReflexPointNumber).start;
        
        //Need to find a point to fix at
@@ -110,7 +111,9 @@ class NavMesh
        boolean Reachable = false;
        boolean Reflexive = true;
        
-       while(Reachable == false || Reflexive == false){
+       //While loop to make sure that
+       while(Reachable == false || Reflexive == false)
+       {
          Reachable = true;
          Reflexive = true;
          
@@ -128,7 +131,9 @@ class NavMesh
          }
          if(PolygonWalls.get(Previous).normal.dot(TestWall.direction) >= 0){    //Checks if the new wall will fix the initial reflexive point
               Reflexive = false;
-         }else{
+         }
+         else
+         {
           //print("\nA non reflexive wall could be formed between points " + ReflexPointNumber + " and " + FixPointNumber);
          }
          
@@ -137,7 +142,8 @@ class NavMesh
        }
 
        print("\nSplitting the polygon between points " + ReflexPoint + ", " + FixPoint);
-       if(FixPointNumber < ReflexPointNumber){
+       if(FixPointNumber < ReflexPointNumber)
+       {
          int temp = FixPointNumber;
          FixPointNumber = ReflexPointNumber;
          ReflexPointNumber = temp;
@@ -145,17 +151,17 @@ class NavMesh
          FixPoint = PolygonWalls.get(FixPointNumber).start;
        }
        
-       Wall Normal = new Wall(ReflexPoint, FixPoint);
-       Wall Reverse = new Wall(FixPoint, ReflexPoint);
+       Wall Normal = new Wall(ReflexPoint, FixPoint); //This would be the wall with a positive ID
+       Wall Reverse = new Wall(FixPoint, ReflexPoint); //This would be the wall with a negative ID
                    
        ArrayList<Wall> FrontWalls = new ArrayList<Wall>();
        ArrayList<Wall> BackWalls = new ArrayList<Wall>(); 
        BackWalls.add(Reverse);
-                   
-       for(int r = 0; r<PolygonWalls.size(); r++){
-           
-         
-           if(r >= ReflexPointNumber && r < FixPointNumber){
+       //Loops through the polygon list, will figure out if it's a back or front wall.           
+       for(int r = 0; r<PolygonWalls.size(); r++)
+       { 
+           if(r >= ReflexPointNumber && r < FixPointNumber)
+           {
              BackWalls.add(PolygonWalls.get(r));
              //print("\nAdding to backwall wall: " + r);
            } else{
@@ -165,7 +171,7 @@ class NavMesh
          
        }
        FrontWalls.add(ReflexPointNumber, Normal);
-       NewWalls.add(Normal);   
+       NewWalls.add(Normal); 
        
        print("\nPrinting the front wall list");
        PrintWallCoords(FrontWalls);
@@ -208,6 +214,7 @@ class NavMesh
      return true;
    }
    
+   //Navemesh navigation section
    ArrayList<PVector> findPath(PVector start, PVector destination)
    {
       /// implement A* to find a path
@@ -215,7 +222,7 @@ class NavMesh
       return result;
    }
    
-   
+   //Sections for drawing navmesh and circling reflex points.
    void update(float dt)
    {
       draw();
@@ -228,16 +235,19 @@ class NavMesh
    void draw()
    {
       /// use this to draw the nav mesh graph
-      for(int i = 0; i < ReflexPoints.size(); i++){
+      for(int i = 0; i < ReflexPoints.size(); i++)
+      {
         stroke(0,255,0);
         circle(ReflexPoints.get(i).x, ReflexPoints.get(i).y, 20);
       }
-      if(NewWalls!=null){
-      for(int j = 0; j < NewWalls.size(); j++){
-        stroke(0,0,255);
-        line(NewWalls.get(j).start.x, NewWalls.get(j).start.y, NewWalls.get(j).end.x, NewWalls.get(j).end.y);
-          //line(current.x, current.y, current.x + 50, current.y);
-      }
+      if(NewWalls!=null)
+      {
+        for(int j = 0; j < NewWalls.size(); j++)
+        {
+          stroke(0,0,255);
+          line(NewWalls.get(j).start.x, NewWalls.get(j).start.y, NewWalls.get(j).end.x, NewWalls.get(j).end.y);
+            //line(current.x, current.y, current.x + 50, current.y);
+        }
       }
    }
 }
