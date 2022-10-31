@@ -49,6 +49,20 @@ PVector[] customMap(int nr)
                             };
           
     }
+    else if (nr == 5)
+    {
+        return new PVector[] {new PVector(0, 1), new PVector(1, 1), new PVector(1, 0), 
+                              new PVector(.6, 0), new PVector(.5, .2), new PVector(.4, 0),new PVector(0, 0)
+                            };
+          
+    }
+    else if (nr == 6)
+    {
+        return new PVector[] {new PVector(0, 1), new PVector(.4, 1), new PVector(.5, .8), new PVector(.6, 1), new PVector(1, 1), new PVector(1, 0), 
+                              new PVector(0, 0)
+                            };
+          
+    }
     else /// you can use nr==5, nr==6, ... nr==9 to add your own custom maps
     {
         return new PVector[] {new PVector(0, 1), new PVector(0.8, 1), new PVector(0.55, 0.7), new PVector(0.75, 0.1), 
