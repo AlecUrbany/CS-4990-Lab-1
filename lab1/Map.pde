@@ -6,6 +6,7 @@ class Wall
    PVector normal;
    PVector direction;
    float len;
+   int id;
    
    Wall(PVector start, PVector end)
    {
