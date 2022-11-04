@@ -46,28 +46,30 @@ class Boid
       float angletotarget = normalize_angle_left_right(atan2(target.y - billy.kinematic.position.y, target.x - billy.kinematic.position.x));
       float angleofchange = normalize_angle_left_right(angletotarget - billy.kinematic.getHeading());
                                                    
-     //Sets the speed relative to the immediate point
-     float VelocityChange = 0;
-     if (billy.kinematic.getSpeed() > distance){                
-      VelocityChange = -1; 
-     } else {
-       VelocityChange = 1;
-     }
+      //Sets the speed relative to the immediate point
+      float VelocityChange = 0;
+      if (billy.kinematic.getSpeed() > distance){                
+        VelocityChange = -1; 
+      } else {
+        VelocityChange = 1;
+      }
      
      
-     //3 lines of code to rotate towards the point
-     float RotationChange = angleofchange;
-     if (abs(angleofchange) < .1){
-       RotationChange = angleofchange - billy.kinematic.getRotationalVelocity();
-     }
+      //rotates quickly at first, then slows down to an exact rotation after .1 radians
+      //limits over correcting, while maintaining a fast rotation
+      float RotationChange = angleofchange;
+      if (abs(angleofchange) < .1){
+        RotationChange = angleofchange - billy.kinematic.getRotationalVelocity();
+      }
      
 
-     //Previous lines make going one point to another quick but dont take into account the angle between 2 waypoints
-     float nextHeading;
-     float nextDistance;
+      //Previous lines make going one point to another quick but dont take into account the angle between 2 waypoints
+      //This is handled here if there are multiple points to follow
+      float nextHeading;
+      float nextDistance;
      
-     if (followpoints != null && followpoints.size() > 1 )
-       {
+      if (followpoints != null && followpoints.size() > 1 )
+      {
          PVector currentPoint = followpoints.get(0);
          PVector nextPoint = followpoints.get(1); 
        
@@ -75,23 +77,17 @@ class Boid
          nextDistance = get_distance(currentPoint.x, currentPoint.y, nextPoint.x, nextPoint.y);
          
          //calculates how much needs to change for following point
-         nextHeading = normalize_angle_left_right(atan2(nextPoint.y - currentPoint.y, nextPoint.x - currentPoint.x)-billy.kinematic.getHeading());
-         print("\n angle of change: " + angleofchange);  
-         print("\n next Heading: " + nextHeading);         
+         nextHeading = normalize_angle_left_right(atan2(nextPoint.y - currentPoint.y, nextPoint.x - currentPoint.x)-billy.kinematic.getHeading());        
          
          //creates a turning speed relative to how much the point needs to turn 
-         float turningSpeed = BILLY_MAX_SPEED  - BILLY_MAX_SPEED * (1 * abs(nextHeading)/3.14); 
+         float turningSpeed = BILLY_MAX_SPEED  - BILLY_MAX_SPEED * (.95 * abs(nextHeading)/3.14); 
+         //the 1 could be lowered to increase turning speed
          
-         //print("\n turning ration: " + abs(nextHeading)/3.14);
-         print("\n turning speed: " + turningSpeed);
-
          //begins checking the corner speed when within the max speed range
          if(distance < BILLY_MAX_SPEED){
-           
            //Slows boid to calculated turning speed or if there are 2 points close together it slows to make sure theres no juking
            if(((billy.kinematic.getSpeed() > turningSpeed) || (8 * nextDistance < turningSpeed)) && billy.kinematic.getSpeed() > 10){
             VelocityChange = -1;
-            
            //makes sure that the boid isn't slowing below 10, even for a 180 turn
            } else {
              VelocityChange = 1;
@@ -108,10 +104,11 @@ class Boid
        }
      }
      
+     
      //Increased from 1 for higher tolerance and faster teting
      if(distance <5)
      {
-       print("\n Arrived at a point");
+       //print("\n Arrived at a point");
        if ((followpoints == null || followpoints.size() == 1))
        {
          VelocityChange = -billy.kinematic.getSpeed();
@@ -123,13 +120,7 @@ class Boid
          billy.follow(followpoints);
        }
      }
-      
      kinematic.increaseSpeed(VelocityChange, RotationChange);
-     //kinematic.increaseSpeed(0, 0);
-     print("\n speed", (billy.kinematic.getSpeed()));
-     
-      
-     
      }
      
      // place crumbs, do not change     
@@ -149,6 +140,8 @@ class Boid
    
    void draw()
    {
+     
+     
      for (Crumb c : this.crumbs)
      {
        c.draw();
@@ -172,19 +165,20 @@ class Boid
      float x2p = x + (BOID_SIZE/2)*sin(r);
      float y2p = y - (BOID_SIZE/2)*cos(r);
      triangle(xp, yp, x1p, y1p, x2p, y2p);
+     
    } 
    
    void seek(PVector target)
    {
-      this.target = target;
-      followpoints = null;
+     //handles a single target point, if more points are being added the route is calculated as each waypoint is added
+      ArrayList<PVector> path = nm.findPath(billy.kinematic.position, target);
+      this.target = path.get(0);
+      this.followpoints = path;
    }
    
    void follow(ArrayList<PVector> waypoints)
    {
-      // TODO: change to follow *all* waypoints
       this.target = waypoints.get(0);
       this.followpoints = waypoints;
-
    }
 }
