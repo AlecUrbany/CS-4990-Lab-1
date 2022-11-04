@@ -6,7 +6,7 @@ class Wall
    PVector normal;
    PVector direction;
    float len;
-   int id;
+   int ID;  //ID will be used to distinguish split walls from the rest of the walls
    
    Wall(PVector start, PVector end)
    {
@@ -16,8 +16,16 @@ class Wall
       len = direction.mag();
       direction.normalize();
       normal = new PVector(-direction.y, direction.x);
+      this.ID = 0;
    }
    
+   void setID(int ID){
+     this.ID = ID;
+   }
+   
+   int getID(){
+     return ID;
+   }
    
    boolean crosses(PVector from, PVector to)
    {
