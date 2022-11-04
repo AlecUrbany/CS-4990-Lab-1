@@ -13,9 +13,9 @@ NavMesh nm = new NavMesh();
 
 boolean entering_path = false;
 
-boolean show_nav_mesh = false;
+boolean show_nav_mesh = true;
 
-boolean show_waypoints = false;
+boolean show_waypoints = true;
 
 boolean show_help = false;
 
@@ -28,6 +28,7 @@ void setup() {
   randomSeed(0);
   map.generate(mapnr);
   nm.bake(map);
+  
 }
 
 void mousePressed() {
@@ -43,6 +44,10 @@ void mousePressed() {
      }
      else
      {
+       ArrayList<PVector> pathfinding = nm.findPath(waypoints.get(waypoints.size()-1), target);
+       for(int i = 0; i < pathfinding.size(); i++){
+         waypoints.add(pathfinding.get(i));
+       }
         waypoints.add(target);
         entering_path = false;
         billy.follow(waypoints);
@@ -50,8 +55,18 @@ void mousePressed() {
   }
   else if (mouseButton == RIGHT)
   {
-     if (!entering_path)
+     if (!entering_path){
         waypoints = new ArrayList<PVector>();
+        ArrayList<PVector> pathfinding = nm.findPath(billy.kinematic.position, target);
+        waypoints = pathfinding;
+      }
+     else{
+       print("Adding additional path");
+       ArrayList<PVector> pathfinding = nm.findPath(waypoints.get(waypoints.size()-1), target);
+       for(int i = 0; i < pathfinding.size(); i++){
+         waypoints.add(pathfinding.get(i));
+       }
+     }
      waypoints.add(target);
      entering_path = true; 
   }
@@ -122,6 +137,14 @@ void show_status(boolean active, String show, int x)
 void draw() {
   background(0);
   
+  //
+  if(waypoints!=null){
+    for(PVector point: waypoints){
+      stroke(255);
+      circle(point.x, point.y, 5);
+    }
+  }
+  
   if (entering_path || show_waypoints)
   {
      stroke(255,0,0);
@@ -130,12 +153,28 @@ void draw() {
      if (show_waypoints && billy.target != null)
      {
         line(current.x, current.y, billy.target.x, billy.target.y);
+        
+        //troubleshooting by creating compass around points
+        //draw compass
+          //stroke(0,0,255);
+          //line(current.x, current.y, current.x + 50, current.y);
+          //line(current.x, current.y, current.x - 50, current.y);
+          //line(current.x, current.y, current.x, current.y + 50);
+          //line(current.x, current.y, current.x, current.y - 50);
+          stroke(255,0,0);
+        
         current = billy.target;
      }
      for (PVector wp : waypoints)
      {
         line(current.x, current.y, wp.x, wp.y);
         current = wp;
+        //draw compass
+          //line(wp.x, wp.y, wp.x + 50, wp.y);
+          //line(wp.x, wp.y, wp.x - 50, wp.y);
+          //line(wp.x, wp.y, wp.x, wp.y + 50);
+          //line(wp.x, wp.y, wp.x, wp.y - 50);
+        
      }
      if (entering_path)
         line(current.x, current.y, mouseX, mouseY);
